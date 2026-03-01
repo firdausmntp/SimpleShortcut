@@ -1,0 +1,87 @@
+name: Build & Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on tags like v0.0.1, v1.0.0, etc.
+
+permissions:
+  contents: write   # needed to create GitHub Releases
+
+jobs:
+  build-and-release:
+    name: Build signed release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant Gradle wrapper execute permission
+        run: chmod +x gradlew
+
+      - name: Decode keystore from secret
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > keystore.jks
+          echo "Keystore file created: $(wc -c < keystore.jks) bytes"
+
+      - name: Write gradle.properties with signing config
+        run: |
+          cat >> gradle.properties << EOF
+          KEYSTORE_PATH=../keystore.jks
+          KEYSTORE_PASS=${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS=${{ secrets.KEY_ALIAS }}
+          KEY_PASS=${{ secrets.KEY_PASS }}
+          EOF
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Rename APK with version tag
+        run: |
+          VERSION="${{ github.ref_name }}"
+          cp app/build/outputs/apk/release/app-release.apk \
+             "SimpleShortcut-${VERSION}.apk"
+
+      - name: Generate SHA-256 checksum
+        run: |
+          VERSION="${{ github.ref_name }}"
+          sha256sum "SimpleShortcut-${VERSION}.apk" > "SimpleShortcut-${VERSION}.apk.sha256"
+          cat "SimpleShortcut-${VERSION}.apk.sha256"
+
+      - name: Create GitHub Release and upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "SimpleShortcut ${{ github.ref_name }}"
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          body: |
+            ## ⚡ SimpleShortcut ${{ github.ref_name }}
+
+            ### 📥 Installation
+            1. Download `SimpleShortcut-${{ github.ref_name }}.apk` below
+            2. On your Android device, go to **Settings → Install Unknown Apps** and allow your browser/file manager
+            3. Open the downloaded APK and tap **Install**
+
+            ### Requirements
+            - Android 8.0+ (API 26+)
+
+            ### SHA-256 Checksum
+            See the `.sha256` file attached for integrity verification.
+
+            ---
+            > Built automatically from tag `${{ github.ref_name }}` · [View source](https://github.com/${{ github.repository }})
+          files: |
+            SimpleShortcut-${{ github.ref_name }}.apk
+            SimpleShortcut-${{ github.ref_name }}.apk.sha256

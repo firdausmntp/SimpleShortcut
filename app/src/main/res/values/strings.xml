@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Simple Shortcut</string>
+    <string name="widget_description">Daftar shortcut yang bisa discroll</string>
+    <string name="widget_single_description">Shortcut icon 1x1 ke satu app</string>
+    <string name="widget_config_title">Pilih Shortcut</string>
+    <string name="widget_config_subtitle">Pilih shortcut yang akan ditampilkan di widget ini</string>
+    <string name="widget_config_empty">Belum ada shortcut. Buka aplikasi dan tambah shortcut dulu.</string>
+    <string name="action_add_shortcut">Tambah Shortcut</string>
+    <string name="hint_emoji">Emoji</string>
+    <string name="hint_label">Label</string>
+    <string name="hint_package_name">Package Name (opsional, ex: com.whatsapp)</string>
+    <string name="hint_deeplink">Deeplink / URL (opsional, ex: https://… atau scheme://…)</string>
+    <string name="btn_save">Simpan</string>
+    <string name="btn_cancel">Batal</string>
+    <string name="btn_delete">Hapus</string>
+    <string name="msg_empty">Belum ada shortcut. Tekan + untuk menambah.</string>
+    <string name="msg_app_not_installed">Aplikasi target tidak terpasang.</string>
+</resources>

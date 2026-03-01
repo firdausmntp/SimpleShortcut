@@ -1,0 +1,29 @@
+## ----- Android & Gradle -----
+*.iml
+.gradle/
+build/
+app/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+## ----- IDE -----
+.idea/
+*.iws
+*.ipr
+.DS_Store
+# VS Code
+.vscode/
+*.code-workspace
+
+## ----- Local config (never commit these) -----
+local.properties
+gradle.properties
+
+## ----- Signing keys (NEVER commit keystores) -----
+*.jks
+*.keystore
+
+## ----- OS -----
+Thumbs.db
+ehthumbs.db

@@ -1,0 +1,10 @@
+## Gradle build performance
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+android.nonTransitiveRClass=true
+
+## Release signing — copy this file to gradle.properties and fill in the values
+KEYSTORE_PATH=../keystore.jks
+KEYSTORE_PASS=your_keystore_password
+KEY_ALIAS=your_key_alias
+KEY_PASS=your_key_password
