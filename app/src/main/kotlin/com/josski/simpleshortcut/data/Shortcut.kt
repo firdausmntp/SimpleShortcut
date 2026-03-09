@@ -17,5 +17,9 @@ data class Shortcut(
     @ColumnInfo(defaultValue = "")
     val category: String = "",
     @ColumnInfo(defaultValue = "0")
-    val isPinned: Boolean = false
+    val isPinned: Boolean = false,
+    @ColumnInfo(defaultValue = "0")
+    val tapCount: Int = 0,
+    @ColumnInfo(defaultValue = "0")
+    val lastUsedAt: Long = 0
 )

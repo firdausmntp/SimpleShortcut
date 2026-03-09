@@ -38,6 +38,11 @@ class ShortcutRepository(private val shortcutDao: ShortcutDao, private val conte
         return shortcutDao.getById(id)
     }
 
+    suspend fun recordTap(id: String) {
+        shortcutDao.incrementTapCount(id)
+        notifyChanges()
+    }
+
     private suspend fun notifyChanges() {
         val shortcuts = shortcutDao.getAllShortcutsSync()
         try { ShortcutPublisher.publishDynamicShortcuts(context, shortcuts) } catch (_: Exception) {}

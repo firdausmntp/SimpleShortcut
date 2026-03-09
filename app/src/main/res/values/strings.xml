@@ -30,4 +30,14 @@
     <string name="menu_import">Import Shortcuts</string>
     <string name="msg_empty">Belum ada shortcut. Tekan + untuk menambah.</string>
     <string name="msg_app_not_installed">Aplikasi target tidak terpasang.</string>
+    <string name="action_drag_handle">Geser untuk urut ulang</string>
+    <string name="menu_sort">Urutkan</string>
+    <string name="sort_rank">Urutan Manual</string>
+    <string name="sort_name">Nama A-Z</string>
+    <string name="sort_most_used">Paling Sering Dipakai</string>
+    <string name="sort_recently_used">Terakhir Dipakai</string>
+    <string name="sort_date_created">Tanggal Dibuat</string>
+    <string name="menu_duplicate">Duplikat Shortcut</string>
+    <string name="shortcut_count">%d shortcut</string>
+    <string name="tap_count_label">%d× dipakai</string>
 </resources>

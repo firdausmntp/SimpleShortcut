@@ -35,4 +35,7 @@ interface ShortcutDao {
 
     @Update
     suspend fun updateAll(shortcuts: List<Shortcut>)
+
+    @Query("UPDATE shortcuts SET tapCount = tapCount + 1, lastUsedAt = :now WHERE id = :id")
+    suspend fun incrementTapCount(id: String, now: Long = System.currentTimeMillis())
 }

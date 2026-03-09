@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Simple Shortcut</string>
+    <string name="widget_description">Scrollable list of shortcuts</string>
+    <string name="widget_single_description">1x1 shortcut icon to one app</string>
+    <string name="widget_config_title">Choose Shortcut</string>
+    <string name="widget_config_subtitle">Pick the shortcut to show on this widget</string>
+    <string name="widget_config_empty">No shortcuts yet. Open the app and add one first.</string>
+    <string name="action_add_shortcut">Add Shortcut</string>
+    <string name="hint_emoji">Emoji</string>
+    <string name="hint_label">Label</string>
+    <string name="hint_package_name">Package Name (optional, e.g. com.whatsapp)</string>
+    <string name="hint_deeplink">Deeplink / URL (optional, e.g. https://… or scheme://…)</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_delete">Delete</string>
+    <string name="action_edit_shortcut">Edit Shortcut</string>
+    <string name="btn_test">Test ▶</string>
+    <string name="hint_search">Search shortcuts…</string>
+    <string name="hint_category">Category (optional, e.g. Social, Finance)</string>
+    <string name="all_categories">All</string>
+    <string name="btn_export">Export</string>
+    <string name="btn_import">Import</string>
+    <string name="msg_exported">Data exported successfully!</string>
+    <string name="msg_imported">%d shortcuts imported!</string>
+    <string name="msg_import_failed">Import failed: %s</string>
+    <string name="msg_pinned">Shortcut pinned to home screen!</string>
+    <string name="msg_pin_not_supported">Launcher does not support pinned shortcuts</string>
+    <string name="menu_pin">Pin to Home</string>
+    <string name="menu_export">Export Shortcuts</string>
+    <string name="menu_import">Import Shortcuts</string>
+    <string name="msg_empty">No shortcuts yet. Tap + to add one.</string>
+    <string name="msg_app_not_installed">Target app is not installed.</string>
+    <string name="action_drag_handle">Drag to reorder</string>
+    <string name="menu_sort">Sort</string>
+    <string name="sort_rank">Manual Order</string>
+    <string name="sort_name">Name A-Z</string>
+    <string name="sort_most_used">Most Used</string>
+    <string name="sort_recently_used">Recently Used</string>
+    <string name="sort_date_created">Date Created</string>
+    <string name="menu_duplicate">Duplicate Shortcut</string>
+    <string name="shortcut_count">%d shortcuts</string>
+    <string name="tap_count_label">%d× used</string>
+</resources>

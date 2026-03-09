@@ -35,7 +35,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: ShortcutAdapter
+    private lateinit var touchHelper: ItemTouchHelper
     private var reorderList = mutableListOf<Shortcut>()
+    private var isDragging = false
 
     private val viewModel: ShortcutViewModel by viewModels {
         ShortcutViewModelFactory((application as SimpleShortcutApp).repository)
@@ -57,6 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         adapter = ShortcutAdapter(
             onClick = { shortcut ->
+                viewModel.recordTap(shortcut)
                 DeeplinkLauncher.launch(this, shortcut.packageName, shortcut.deeplink)
             },
             onDelete = { shortcut ->
@@ -76,15 +79,20 @@ class MainActivity : AppCompatActivity() {
                     .setItems(arrayOf(
                         getString(R.string.menu_pin),
                         getString(R.string.action_edit_shortcut),
+                        getString(R.string.menu_duplicate),
                         getString(R.string.btn_delete)
                     )) { _, which ->
                         when (which) {
                             0 -> pinShortcut(shortcut)
                             1 -> showEditShortcutDialog(shortcut)
-                            2 -> viewModel.delete(shortcut)
+                            2 -> viewModel.duplicate(shortcut)
+                            3 -> viewModel.delete(shortcut)
                         }
                     }
                     .show()
+            },
+            onDragStart = { viewHolder ->
+                touchHelper.startDrag(viewHolder)
             }
         )
 
@@ -92,13 +100,14 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
 
         // Drag-to-reorder
-        val touchHelper = ItemTouchHelper(ShortcutItemTouchHelper(
+        touchHelper = ItemTouchHelper(ShortcutItemTouchHelper(
             onMoved = { from, to ->
-                if (reorderList.isNotEmpty()) {
+                if (from in reorderList.indices && to in reorderList.indices) {
                     Collections.swap(reorderList, from, to)
                     adapter.notifyItemMoved(from, to)
                 }
             },
+            onDragStateChanged = { dragging -> isDragging = dragging },
             onDropped = {
                 if (reorderList.isNotEmpty()) {
                     viewModel.updateRanks(reorderList.toList())
@@ -120,12 +129,15 @@ class MainActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // Observe filtered shortcuts
+        // Observe filtered shortcuts (skip during drag to avoid resetting reorder)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.filteredShortcuts.collect { shortcuts ->
-                    reorderList = shortcuts.toMutableList()
-                    adapter.submitList(shortcuts)
+                    if (!isDragging) {
+                        reorderList = shortcuts.toMutableList()
+                        adapter.submitList(shortcuts)
+                    }
+                    supportActionBar?.subtitle = getString(R.string.shortcut_count, shortcuts.size)
                 }
             }
         }
@@ -148,13 +160,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(0, MENU_EXPORT, 0, R.string.menu_export)
-        menu.add(0, MENU_IMPORT, 1, R.string.menu_import)
+        menu.add(0, MENU_SORT, 0, R.string.menu_sort)
+        menu.add(0, MENU_EXPORT, 1, R.string.menu_export)
+        menu.add(0, MENU_IMPORT, 2, R.string.menu_import)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            MENU_SORT -> {
+                showSortDialog()
+                true
+            }
             MENU_EXPORT -> {
                 exportLauncher.launch("simpleshortcut_backup.json")
                 true
@@ -165,6 +182,25 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun showSortDialog() {
+        val sortNames = arrayOf(
+            getString(R.string.sort_rank),
+            getString(R.string.sort_name),
+            getString(R.string.sort_most_used),
+            getString(R.string.sort_recently_used),
+            getString(R.string.sort_date_created)
+        )
+        val currentIndex = ShortcutViewModel.SortMode.entries.indexOf(viewModel.sortMode)
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.menu_sort)
+            .setSingleChoiceItems(sortNames, currentIndex) { dialog, which ->
+                viewModel.setSortMode(ShortcutViewModel.SortMode.entries[which])
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.btn_cancel, null)
+            .show()
     }
 
     private fun handleIntent(intent: Intent) {
@@ -188,12 +224,13 @@ class MainActivity : AppCompatActivity() {
     private fun updateCategoryChips(categories: List<String>) {
         val chipGroup = binding.chipGroupCategories
         chipGroup.removeAllViews()
+        val selected = viewModel.selectedCategory
 
         // "All" chip
         val allChip = Chip(this).apply {
             text = getString(R.string.all_categories)
             isCheckable = true
-            isChecked = true
+            isChecked = selected.isBlank()
             setOnClickListener {
                 viewModel.setSelectedCategory("")
             }
@@ -204,6 +241,7 @@ class MainActivity : AppCompatActivity() {
             val chip = Chip(this).apply {
                 text = cat
                 isCheckable = true
+                isChecked = cat == selected
                 setOnClickListener {
                     viewModel.setSelectedCategory(cat)
                 }
@@ -357,6 +395,8 @@ class MainActivity : AppCompatActivity() {
                         put("rank", s.rank)
                         put("category", s.category)
                         put("isPinned", s.isPinned)
+                        put("tapCount", s.tapCount)
+                        put("lastUsedAt", s.lastUsedAt)
                     })
                 }
                 contentResolver.openOutputStream(uri)?.use { os ->
@@ -386,7 +426,9 @@ class MainActivity : AppCompatActivity() {
                         emoji = obj.optString("emoji", "⚡"),
                         rank = obj.optInt("rank", 0),
                         category = obj.optString("category", ""),
-                        isPinned = obj.optBoolean("isPinned", false)
+                        isPinned = obj.optBoolean("isPinned", false),
+                        tapCount = obj.optInt("tapCount", 0),
+                        lastUsedAt = obj.optLong("lastUsedAt", 0)
                     )
                     viewModel.insert(shortcut)
                     count++
@@ -401,6 +443,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_SHORTCUT_ID = "extra_shortcut_id"
         const val EXTRA_OPEN_ADD_DIALOG = "extra_open_add_dialog"
+        private const val MENU_SORT = 99
         private const val MENU_EXPORT = 100
         private const val MENU_IMPORT = 101
     }

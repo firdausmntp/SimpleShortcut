@@ -18,8 +18,12 @@ class SimpleShortcutApp : Application() {
         super.onCreate()
         // Re-publish shortcuts on cold start
         applicationScope.launch {
-            val shortcuts = database.shortcutDao().getAllShortcutsSync()
-            com.josski.simpleshortcut.widget.ShortcutPublisher.publishDynamicShortcuts(this@SimpleShortcutApp, shortcuts)
+            try {
+                val shortcuts = database.shortcutDao().getAllShortcutsSync()
+                com.josski.simpleshortcut.widget.ShortcutPublisher.publishDynamicShortcuts(this@SimpleShortcutApp, shortcuts)
+            } catch (_: Exception) {
+                // ShortcutManager rate-limit or other failures should not crash the app
+            }
         }
     }
 }

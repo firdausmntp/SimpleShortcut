@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Shortcut::class], version = 2, exportSchema = false)
+@Database(entities = [Shortcut::class], version = 3, exportSchema = false)
 abstract class ShortcutDatabase : RoomDatabase() {
 
     abstract fun shortcutDao(): ShortcutDao
@@ -23,6 +23,13 @@ abstract class ShortcutDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE shortcuts ADD COLUMN tapCount INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE shortcuts ADD COLUMN lastUsedAt INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: Context): ShortcutDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -30,7 +37,7 @@ abstract class ShortcutDatabase : RoomDatabase() {
                     ShortcutDatabase::class.java,
                     "shortcut_database"
                 )
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
