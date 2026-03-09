@@ -37,6 +37,8 @@ object DeeplinkLauncher {
             }
         } catch (e: SecurityException) {
             Toast.makeText(context, "Tidak punya izin untuk membuka app ini", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "Gagal membuka: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 

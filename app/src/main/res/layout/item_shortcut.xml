@@ -47,7 +47,30 @@
                 android:textAppearance="?attr/textAppearanceLabelSmall"
                 android:textColor="?android:attr/textColorSecondary" />
 
+            <TextView
+                android:id="@+id/tvCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:drawable/editbox_background_normal"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="1dp"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorPrimary"
+                android:visibility="gone" />
+
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btnEdit"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/action_edit_shortcut"
+            android:focusable="true"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_edit"
+            app:tint="?attr/colorPrimary" />
 
         <ImageView
             android:id="@+id/btnDelete"

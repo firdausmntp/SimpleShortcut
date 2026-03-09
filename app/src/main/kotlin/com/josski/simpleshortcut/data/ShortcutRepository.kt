@@ -9,6 +9,10 @@ import com.josski.simpleshortcut.widget.SingleShortcutWidgetProvider
 class ShortcutRepository(private val shortcutDao: ShortcutDao, private val context: Context) {
 
     val allShortcuts: Flow<List<Shortcut>> = shortcutDao.getAllShortcuts()
+    val allCategories: Flow<List<String>> = shortcutDao.getAllCategories()
+
+    fun search(query: String): Flow<List<Shortcut>> = shortcutDao.search(query)
+    fun getByCategory(category: String): Flow<List<Shortcut>> = shortcutDao.getByCategory(category)
 
     suspend fun insert(shortcut: Shortcut) {
         shortcutDao.insert(shortcut)
@@ -25,14 +29,19 @@ class ShortcutRepository(private val shortcutDao: ShortcutDao, private val conte
         notifyChanges()
     }
 
+    suspend fun updateAll(shortcuts: List<Shortcut>) {
+        shortcutDao.updateAll(shortcuts)
+        notifyChanges()
+    }
+
     suspend fun getById(id: String): Shortcut? {
         return shortcutDao.getById(id)
     }
 
     private suspend fun notifyChanges() {
         val shortcuts = shortcutDao.getAllShortcutsSync()
-        ShortcutPublisher.publishDynamicShortcuts(context, shortcuts)
-        ShortcutWidgetProvider.notifyWidgets(context)
-        SingleShortcutWidgetProvider.notifyAll(context)
+        try { ShortcutPublisher.publishDynamicShortcuts(context, shortcuts) } catch (_: Exception) {}
+        try { ShortcutWidgetProvider.notifyWidgets(context) } catch (_: Exception) {}
+        try { SingleShortcutWidgetProvider.notifyAll(context) } catch (_: Exception) {}
     }
 }

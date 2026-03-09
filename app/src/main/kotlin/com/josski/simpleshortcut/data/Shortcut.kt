@@ -1,5 +1,6 @@
 package com.josski.simpleshortcut.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -12,5 +13,9 @@ data class Shortcut(
     val deeplink: String,
     val emoji: String,
     val rank: Int = 0,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(defaultValue = "")
+    val category: String = "",
+    @ColumnInfo(defaultValue = "0")
+    val isPinned: Boolean = false
 )

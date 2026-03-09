@@ -100,11 +100,16 @@ class SingleShortcutWidgetProvider : AppWidgetProvider() {
         super.onReceive(context, intent)
         if (intent.action == ACTION_SINGLE_CLICK) {
             val shortcutId = intent.getStringExtra(EXTRA_SHORTCUT_ID) ?: return
+            val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
-                val db = ShortcutDatabase.getDatabase(context)
-                val item = db.shortcutDao().getById(shortcutId)
-                if (item != null) {
-                    DeeplinkLauncher.launch(context, item.packageName, item.deeplink)
+                try {
+                    val db = ShortcutDatabase.getDatabase(context)
+                    val item = db.shortcutDao().getById(shortcutId)
+                    if (item != null) {
+                        DeeplinkLauncher.launch(context, item.packageName, item.deeplink)
+                    }
+                } finally {
+                    pendingResult.finish()
                 }
             }
         }

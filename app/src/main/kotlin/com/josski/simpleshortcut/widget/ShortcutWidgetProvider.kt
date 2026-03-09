@@ -26,12 +26,16 @@ class ShortcutWidgetProvider : AppWidgetProvider() {
         super.onReceive(context, intent)
         if (intent.action == ACTION_SHORTCUT_CLICK) {
             val shortcutId = intent.getStringExtra(EXTRA_SHORTCUT_ID) ?: return
-            
-            val db = ShortcutDatabase.getDatabase(context)
+            val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
-                val item = db.shortcutDao().getById(shortcutId)
-                if (item != null) {
-                    DeeplinkLauncher.launch(context, item.packageName, item.deeplink)
+                try {
+                    val db = ShortcutDatabase.getDatabase(context)
+                    val item = db.shortcutDao().getById(shortcutId)
+                    if (item != null) {
+                        DeeplinkLauncher.launch(context, item.packageName, item.deeplink)
+                    }
+                } finally {
+                    pendingResult.finish()
                 }
             }
         }

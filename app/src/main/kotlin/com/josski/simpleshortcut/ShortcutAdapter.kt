@@ -1,6 +1,7 @@
 package com.josski.simpleshortcut
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,7 +11,9 @@ import com.josski.simpleshortcut.databinding.ItemShortcutBinding
 
 class ShortcutAdapter(
     private val onClick: (Shortcut) -> Unit,
-    private val onDelete: (Shortcut) -> Unit
+    private val onDelete: (Shortcut) -> Unit,
+    private val onEdit: (Shortcut) -> Unit,
+    private val onLongClick: ((Shortcut) -> Unit)? = null
 ) : ListAdapter<Shortcut, ShortcutAdapter.ShortcutViewHolder>(ShortcutDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShortcutViewHolder {
@@ -27,8 +30,20 @@ class ShortcutAdapter(
             binding.tvEmoji.text = shortcut.emoji
             binding.tvLabel.text = shortcut.label
             binding.tvPackage.text = shortcut.packageName
-            
+
+            if (shortcut.category.isNotBlank()) {
+                binding.tvCategory.text = shortcut.category
+                binding.tvCategory.visibility = View.VISIBLE
+            } else {
+                binding.tvCategory.visibility = View.GONE
+            }
+
             binding.root.setOnClickListener { onClick(shortcut) }
+            binding.root.setOnLongClickListener {
+                onLongClick?.invoke(shortcut)
+                true
+            }
+            binding.btnEdit.setOnClickListener { onEdit(shortcut) }
             binding.btnDelete.setOnClickListener { onDelete(shortcut) }
         }
     }
